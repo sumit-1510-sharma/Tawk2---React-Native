@@ -1,13 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Button } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Button,
+  FlatList,
+} from "react-native";
 import CategorySection from "../components/CategorySection";
 import { StatusBar } from "expo-status-bar";
 import ScreenWrapper from "../components/ScreenWrapper";
 import * as SQLite from "expo-sqlite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { wp } from "../helpers/common";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { useRouter } from "expo-router";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("Fun");
+  const flatListRef = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     const setupDatabase = async () => {
@@ -617,70 +629,71 @@ const Index = () => {
     }
   };
 
-  return (
-    <ScreenWrapper bg="#121212">
-      <StatusBar style="light" />
-      <View style={styles.container}>
-        {/* <StatusBar style="light" /> */}
-        {/* Render content based on active tab */}
-        <View style={styles.content}>
-          {activeTab === "Fun" && <CategorySection category={"Fun"} />}
-          {activeTab === "Connection" && (
-            <CategorySection category={"Connection"} />
-          )}
-          {activeTab === "Reflection" && (
-            <CategorySection category={"Reflection"} />
-          )}
-        </View>
+  const tabs = [
+    { key: "Fun", category: "Fun" },
+    { key: "Connection", category: "Connection" },
+    { key: "Reflection", category: "Reflection" },
+  ];
 
-        {/* Tab bar at the bottom */}
-        <View style={styles.tabBar}>
+  const onTabPress = (index) => {
+    setActiveTab(tabs[index].key);
+    flatListRef.current?.scrollToIndex({ index });
+  };
+
+  const onMomentumScrollEnd = (event) => {
+    const index = Math.round(
+      event.nativeEvent.contentOffset.x /
+        event.nativeEvent.layoutMeasurement.width
+    );
+    setActiveTab(tabs[index].key);
+  };
+
+  return (
+    <ScreenWrapper bg="#121212" style={styles.container}>
+      <StatusBar style="light" />
+      <View style={styles.header}>
+        <Text style={styles.packText}>Select a pack</Text>
+        <TouchableOpacity
+          onPress={() => router.push("/profile")}
+          style={styles.profileIconBg}
+        >
+          <FontAwesome5 name="user" size={20} color="black" />
+        </TouchableOpacity>
+      </View>
+      {/* Render content using FlatList */}
+      <FlatList
+        ref={flatListRef}
+        data={tabs}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item.key}
+        renderItem={({ item }) => (
+          <View style={styles.content}>
+            <CategorySection category={item.category} />
+          </View>
+        )}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+      />
+
+      {/* Tab bar at the bottom */}
+      <View style={styles.tabBar}>
+        {tabs.map((tab, index) => (
           <TouchableOpacity
-            style={[styles.tabItem, activeTab === "Fun" && styles.activeTab]}
-            onPress={() => setActiveTab("Fun")}
+            key={tab.key}
+            style={[styles.tabItem, activeTab === tab.key && styles.activeTab]}
+            onPress={() => onTabPress(index)}
           >
             <Text
               style={[
                 styles.tabText,
-                activeTab === "Fun" && styles.activeTabText,
+                activeTab === tab.key && styles.activeTabText,
               ]}
             >
-              Fun
+              {tab.key}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.tabItem,
-              activeTab === "Connection" && styles.activeTab,
-            ]}
-            onPress={() => setActiveTab("Connection")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "Connection" && styles.activeTabText,
-              ]}
-            >
-              Connection
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.tabItem,
-              activeTab === "Reflection" && styles.activeTab,
-            ]}
-            onPress={() => setActiveTab("Reflection")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "Reflection" && styles.activeTabText,
-              ]}
-            >
-              Reflection
-            </Text>
-          </TouchableOpacity>
-        </View>
+        ))}
       </View>
     </ScreenWrapper>
   );
@@ -694,27 +707,55 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  header: {
+    marginHorizontal: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  profileIconBg: {
+    backgroundColor: "white",
+    borderRadius: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  packText: {
+    fontSize: 18,
+    color: "white",
+    marginVertical: 20,
+    // marginHorizontal: wp(2.5),
+    fontWeight: "bold",
+  },
+  content: {
+    width: "100%", // Match FlatList item size
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   text: {
     fontSize: 18,
     color: "#fff",
   },
   tabBar: {
-    position: "absolute",
-    bottom: 0,
+    // position: "absolute",
+    // bottom: 20, // Adjust spacing from bottom
     flexDirection: "row",
-    backgroundColor: "#111",
-    padding: 10,
-    justifyContent: "space-around",
-    borderRadius: 20,
+    backgroundColor: "#242424",
+    padding: 4,
+    marginVertical: 4,
+    justifyContent: "space-between",
+    alignSelf: "center",
+    borderRadius: 50,
+    width: "90%", // Adjust tab bar width
   },
   tabItem: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 20,
+    borderRadius: 50,
     backgroundColor: "transparent",
   },
   activeTab: {
-    backgroundColor: "#444", // Active tab background color
+    backgroundColor: "#464646", // Active tab background color
   },
   tabText: {
     color: "#888",

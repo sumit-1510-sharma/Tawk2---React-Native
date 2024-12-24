@@ -12,6 +12,7 @@ import ScreenWrapper from "../components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
+
 export default function Profile() {
   const router = useRouter();
 

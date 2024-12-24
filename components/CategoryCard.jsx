@@ -9,7 +9,6 @@ import React from "react";
 import { wp } from "../helpers/common";
 import { useRouter } from "expo-router";
 
-
 export default function CategoryCard({ slug, title, description }) {
   const router = useRouter(); // Hook to handle navigation
 
@@ -27,6 +26,8 @@ export default function CategoryCard({ slug, title, description }) {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "black",
+    marginHorizontal: "auto",
     width: wp(95),
     padding: 20,
     marginVertical: 12,

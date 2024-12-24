@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, ScrollView, Button } from "react-native";
 import React from "react";
 import CategoryCard from "./CategoryCard";
 import { useRouter } from "expo-router";
+import { hp, wp } from "../helpers/common";
 
 export default function CategorySection({ category }) {
   // Define card data for each category
@@ -95,10 +96,9 @@ export default function CategorySection({ category }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.pack}>Select a pack</Text>
-      <View>
+      {/* <View>
         <Button title="Profile Page" onPress={() => router.push("/profile")} />
-      </View>
+      </View> */}
 
       <View>
         <ScrollView contentContainerStyle={styles.cardContainer}>
@@ -120,7 +120,9 @@ export default function CategorySection({ category }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    // marginBottom: 0,
+    width: wp(100),
+    backgroundColor: "#121212",
   },
   cardContainer: {
     padding: 0,
@@ -132,11 +134,5 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 8,
     backgroundColor: "#121212",
-  },
-  pack: {
-    fontSize: 18,
-    color: "white",
-    marginBottom: 12,
-    fontWeight: "bold",
   },
 });
